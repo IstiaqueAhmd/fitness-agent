@@ -7,7 +7,7 @@ from typing import List
 from database import get_db
 from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession
 from chat import FitnessChat
-from tools import (
+from app.utils import (
     create_chat_session, 
     save_message, 
     get_chat_history, 
