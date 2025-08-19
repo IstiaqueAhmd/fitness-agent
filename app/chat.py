@@ -32,7 +32,7 @@ class FitnessChat:
             messages.append({"role": "user", "content": message})
             
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4.1-mini",
                 messages=messages,
                 max_tokens=1000,
                 temperature=0.7

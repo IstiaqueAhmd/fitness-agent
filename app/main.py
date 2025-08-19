@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from app.database import get_db
-from app.schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession
-from app.chat import FitnessChat
-from app.tools import (
+from database import get_db
+from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession
+from chat import FitnessChat
+from tools import (
     create_chat_session, 
     save_message, 
     get_chat_history, 
@@ -161,4 +161,4 @@ async def update_title(session_id: str, title: str, user_id: str, db: Session = 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

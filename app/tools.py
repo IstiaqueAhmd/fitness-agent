@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List, Dict
 from sqlalchemy.orm import Session
-from app.database import ChatSession, ChatMessage
+from database import ChatSession, ChatMessage
 
 def generate_session_id() -> str:
     """Generate a unique session ID"""
