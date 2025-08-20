@@ -1,5 +1,5 @@
 from openai import OpenAI
-from typing import List, Dict
+from typing import List, Dict, Any, Optional
 import os
 import json
 from dotenv import load_dotenv
@@ -29,6 +29,7 @@ When creating workout plans, be specific and include:
 If a user asks you to save a workout plan, use the save_workout_plan function. Always ask for a plan name if not provided."""
     
     def generate_response(self, message: str, conversation_history: List[Dict[str, str]] = None, user_id: str = "anonymous", session_id: str = None) -> str:
+
         """Generate a response using OpenAI API with tool calling capabilities"""
         try:
             # Define available tools
@@ -109,11 +110,13 @@ If a user asks you to save a workout plan, use the save_workout_plan function. A
                 # Add the assistant's response to messages
                 messages.append(response_message)
                 
+
                 # Execute each tool call
                 for tool_call in response_message.tool_calls:
                     function_name = tool_call.function.name
                     function_args = json.loads(tool_call.function.arguments)
                     
+
                     # Add user_id and session_id to function args if not present
                     if "user_id" in function_args and function_args["user_id"] == "":
                         function_args["user_id"] = user_id
@@ -136,11 +139,13 @@ If a user asks you to save a workout plan, use the save_workout_plan function. A
                     model="gpt-4o-mini",
                     messages=messages,
                     max_tokens=1000,
+
                     temperature=0.7
                 )
                 
                 return final_response.choices[0].message.content
             else:
+
                 # No tool calls needed, return the response directly
                 return response_message.content
             

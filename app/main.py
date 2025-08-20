@@ -5,8 +5,9 @@ from datetime import datetime
 from typing import List
 
 from database import get_db
-from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession
+from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession, FitnessPlanList
 from chat import FitnessChat
+
 from utils import (
     create_chat_session, 
     save_message, 
@@ -48,7 +49,7 @@ async def health_check():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, db: Session = Depends(get_db)):
-    """Send a message and get AI response"""
+    """Send a message and get AI response with tool calling capabilities"""
     try:
         session_id = request.session_id
         

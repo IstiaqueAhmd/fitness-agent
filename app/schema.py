@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 class ChatMessage(BaseModel):
@@ -32,3 +32,28 @@ class ChatHistory(BaseModel):
 
 class SessionList(BaseModel):
     sessions: List[ChatSession]
+
+class FitnessPlan(BaseModel):
+    id: Optional[int] = None
+    user_id: str
+    session_id: str
+    plan_name: str
+    plan_type: str  # "workout", "nutrition", "combined"
+    plan_data: Dict[str, Any]
+    goals: str
+    duration_weeks: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    
+    class Config:
+        from_attributes = True
+
+class FitnessPlanCreate(BaseModel):
+    plan_name: str
+    plan_type: str
+    plan_data: Dict[str, Any]
+    goals: str
+    duration_weeks: int = 12
+
+class FitnessPlanList(BaseModel):
+    plans: List[FitnessPlan]
