@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -29,6 +29,20 @@ class ChatMessage(Base):
     role = Column(String)  # "user" or "assistant"
     content = Column(Text)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+class FitnessPlan(Base):
+    __tablename__ = "fitness_plans"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, index=True)
+    session_id = Column(String, index=True)
+    plan_name = Column(String)
+    plan_type = Column(String)  # "workout", "nutrition", "combined"
+    plan_data = Column(JSON)  # Store the full plan as JSON
+    goals = Column(Text)
+    duration_weeks = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # Create tables
 Base.metadata.create_all(bind=engine)

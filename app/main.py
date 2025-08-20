@@ -4,10 +4,11 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from database import get_db
-from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession
-from chat import FitnessChat
-from app.utils import (
+from .database import get_db
+from .schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession, FitnessPlanList
+from .chat import FitnessChat
+from .tools import get_user_fitness_plans
+from .utils import (
     create_chat_session, 
     save_message, 
     get_chat_history, 
@@ -47,7 +48,7 @@ async def health_check():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, db: Session = Depends(get_db)):
-    """Send a message and get AI response"""
+    """Send a message and get AI response with tool calling capabilities"""
     try:
         session_id = request.session_id
         
@@ -61,8 +62,14 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
         # Save user message
         save_message(db, session_id, "user", request.message)
         
-        # Generate AI response
-        ai_response = fitness_chat.generate_response(request.message, history)
+        # Generate AI response with tool calling capabilities
+        ai_response = fitness_chat.generate_response(
+            message=request.message,
+            conversation_history=history,
+            user_id=request.user_id,
+            session_id=session_id,
+            db_session=db
+        )
         
         # Save AI response
         save_message(db, session_id, "assistant", ai_response)
@@ -157,6 +164,18 @@ async def update_title(session_id: str, title: str, user_id: str, db: Session = 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error updating title: {str(e)}"
+        )
+
+@app.get("/fitness-plans/{user_id}", response_model=FitnessPlanList)
+async def get_fitness_plans(user_id: str, db: Session = Depends(get_db)):
+    """Get all fitness plans for a user"""
+    try:
+        plans = get_user_fitness_plans(db, user_id)
+        return FitnessPlanList(plans=plans)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving fitness plans: {str(e)}"
         )
 
 if __name__ == "__main__":
