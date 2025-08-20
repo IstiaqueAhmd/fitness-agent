@@ -7,7 +7,7 @@ from typing import List
 from database import get_db
 from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession, FitnessPlanList
 from chat import FitnessChat
-from tools import get_user_fitness_plans
+
 from utils import (
     create_chat_session, 
     save_message, 
@@ -16,6 +16,7 @@ from utils import (
     delete_chat_session,
     update_session_title
 )
+from tools import get_user_workout_plans
 
 # Create FastAPI app
 app = FastAPI(
@@ -62,13 +63,12 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
         # Save user message
         save_message(db, session_id, "user", request.message)
         
-        # Generate AI response with tool calling capabilities
+        # Generate AI response
         ai_response = fitness_chat.generate_response(
-            message=request.message,
-            conversation_history=history,
-            user_id=request.user_id,
-            session_id=session_id,
-            db_session=db
+            request.message, 
+            history, 
+            user_id=request.user_id, 
+            session_id=session_id
         )
         
         # Save AI response
@@ -166,16 +166,22 @@ async def update_title(session_id: str, title: str, user_id: str, db: Session = 
             detail=f"Error updating title: {str(e)}"
         )
 
-@app.get("/fitness-plans/{user_id}", response_model=FitnessPlanList)
-async def get_fitness_plans(user_id: str, db: Session = Depends(get_db)):
-    """Get all fitness plans for a user"""
+@app.get("/workout-plans/{user_id}")
+async def get_workout_plans(user_id: str):
+    """Get all workout plans for a user"""
     try:
-        plans = get_user_fitness_plans(db, user_id)
-        return FitnessPlanList(plans=plans)
+        result = get_user_workout_plans(user_id)
+        if result["success"]:
+            return result
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=result["message"]
+            )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving fitness plans: {str(e)}"
+            detail=f"Error retrieving workout plans: {str(e)}"
         )
 
 if __name__ == "__main__":

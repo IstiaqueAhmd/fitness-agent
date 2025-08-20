@@ -30,19 +30,15 @@ class ChatMessage(Base):
     content = Column(Text)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
-class FitnessPlan(Base):
-    __tablename__ = "fitness_plans"
+class WorkoutPlan(Base):
+    __tablename__ = "workout_plans"
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True)
-    session_id = Column(String, index=True)
     plan_name = Column(String)
-    plan_type = Column(String)  # "workout", "nutrition", "combined"
-    plan_data = Column(JSON)  # Store the full plan as JSON
-    goals = Column(Text)
-    duration_weeks = Column(Integer)
+    plan_content = Column(Text)  # JSON string or structured text
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    session_id = Column(String, index=True)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
