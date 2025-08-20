@@ -7,7 +7,7 @@ from typing import List
 from database import get_db
 from schema import ChatRequest, ChatResponse, ChatHistory, SessionList, ChatSession
 from chat import FitnessChat
-from app.utils import (
+from utils import (
     create_chat_session, 
     save_message, 
     get_chat_history, 
@@ -15,6 +15,7 @@ from app.utils import (
     delete_chat_session,
     update_session_title
 )
+from tools import get_user_workout_plans
 
 # Create FastAPI app
 app = FastAPI(
@@ -62,7 +63,12 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
         save_message(db, session_id, "user", request.message)
         
         # Generate AI response
-        ai_response = fitness_chat.generate_response(request.message, history)
+        ai_response = fitness_chat.generate_response(
+            request.message, 
+            history, 
+            user_id=request.user_id, 
+            session_id=session_id
+        )
         
         # Save AI response
         save_message(db, session_id, "assistant", ai_response)
@@ -157,6 +163,24 @@ async def update_title(session_id: str, title: str, user_id: str, db: Session = 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error updating title: {str(e)}"
+        )
+
+@app.get("/workout-plans/{user_id}")
+async def get_workout_plans(user_id: str):
+    """Get all workout plans for a user"""
+    try:
+        result = get_user_workout_plans(user_id)
+        if result["success"]:
+            return result
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=result["message"]
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving workout plans: {str(e)}"
         )
 
 if __name__ == "__main__":
