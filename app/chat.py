@@ -4,7 +4,7 @@ import os
 import json
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from .tools import call_fitness_function
+from tools import call_fitness_function
 
 load_dotenv()
 

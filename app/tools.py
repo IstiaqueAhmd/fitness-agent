@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
-from .database import FitnessPlan, get_db
+from database import FitnessPlan, get_db
 
 
 def generate_workout_plan(
